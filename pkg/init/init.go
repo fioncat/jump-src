@@ -11,6 +11,7 @@ import (
 func Run(domain string, ssh bool) error {
 	path := askString("Please input your domain path")
 	homeCmd := askString("Please input your home command")
+	searchCmd := askString("Please input your search command")
 
 	err := mkdir(path)
 	if err != nil {
@@ -49,6 +50,7 @@ func Run(domain string, ssh bool) error {
 		"VarName": strings.ToUpper(homeCmd),
 		"Domain":  domain,
 		"SSH":     sshOpt,
+		"Search":  searchCmd,
 	})
 	if err != nil {
 		return err
@@ -108,4 +110,16 @@ function {{.Name}}() {
 	fi
 }
 complete -F _{{.Name}} -o filenames {{.Name}}
+
+function {{.Search}}() {
+	target=$(jump-src complete --home ${{.VarName}}_PATH | fzf | tr -d '\n')
+	if [ -z "$target" ]; then
+		return
+	fi
+	jump_path=${{.VarName}}_PATH/$target
+	if [ -d "$jump_path" ]; then
+		cd $jump_path
+		return
+	fi
+}
 `
