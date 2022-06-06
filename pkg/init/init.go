@@ -12,6 +12,8 @@ func Run(domain string, ssh bool) error {
 	path := askString("Please input your domain path")
 	homeCmd := askString("Please input your home command")
 	searchCmd := askString("Please input your search command")
+	gitUser := askString("Please input your git user name")
+	gitEmail := askString("Please input your git email")
 
 	err := mkdir(path)
 	if err != nil {
@@ -46,11 +48,13 @@ func Run(domain string, ssh bool) error {
 	}
 
 	err = tmpl.Execute(file, map[string]string{
-		"Name":    homeCmd,
-		"VarName": strings.ToUpper(homeCmd),
-		"Domain":  domain,
-		"SSH":     sshOpt,
-		"Search":  searchCmd,
+		"Name":     homeCmd,
+		"VarName":  strings.ToUpper(homeCmd),
+		"Domain":   domain,
+		"SSH":      sshOpt,
+		"Search":   searchCmd,
+		"GitUser":  gitUser,
+		"GitEmail": gitEmail,
 	})
 	if err != nil {
 		return err
@@ -106,6 +110,10 @@ function {{.Name}}() {
 	jump_path=${{.VarName}}_PATH/$1
 	if [ -d "$jump_path" ]; then
 		cd $jump_path
+		cd .git
+		git config user.name "{{.GitUser}}"
+		git config user.email "{{.GitEmail}}"
+		cd ..
 		return
 	fi
 }
